@@ -21,7 +21,7 @@ This is the technical documentation for the "Ball Speed Measurement" program wri
 2. Open the terminal or command prompt and navigate to the program's directory.
 3. Run the program using the following command:
    ```
-   python main.py
+   python3 main.py
    ```
 4. The application window will open, showing the video feed and the measured ball speeds.
 
