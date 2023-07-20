@@ -25,6 +25,9 @@ This is the technical documentation for the "Ball Speed Measurement" program wri
    ```
 4. The application window will open, showing the video feed and the measured ball speeds.
 
+   ![doc_2023-07-21_02-48-00](https://github.com/PlatonBelogorcev/Ball-Speed-Measurement-Program/assets/80585554/b6362bab-a2f5-413c-92f0-b72dfa376797)
+
+
 ## Program Description
 
 The program consists of two main classes:
