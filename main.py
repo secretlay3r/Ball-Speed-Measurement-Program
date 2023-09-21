@@ -8,7 +8,9 @@ matplotlib.use('Qt5Agg')
 from matplotlib import pyplot as plt
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QFileDialog
+
+
 
 petan_radius = 37
 black_radius = 90
@@ -16,10 +18,7 @@ petan_size = 0.072
 black_size = 0.09
 dtr = 1.5
 
-crx,cry = 0.25, 0.2 # Crop parameters - less numbers => less crop
-fname = "Videos/example_video_1.mp4" # Choose your video here
-#fname = "Videos/example_video_2.mp4"
-
+crx,cry = 0.25, 0.2
 
 class PetangBall:
     def __init__(self, radius, position=None):
@@ -64,7 +63,6 @@ class PetangBall:
 
             self.speed_meters_x = dx_meters / elapsed_time
             self.speed_meters_y = dy_meters / elapsed_time
-
 
 
             if self.speed > self.max_speed:
@@ -137,8 +135,8 @@ class PetangStorage:
             cv2.arrowedLine(frame, (x, y), vx_position, (0, 0, 255) , 5) 
             cv2.arrowedLine(frame, (x, y), vy_position, (255, 0, 0) , 5) 
     def draw_labels(self, frame):
-        if len(self.objects) > 2:
-            print(f"draw {len(self.objects)} labels")
+        #if len(self.objects) > 2:  # For debugging
+         #   print(f"{len(self.objects)} labels")
 
         for o in self.objects:
             x,y = int(o.prev_position[0]), int(o.prev_position[1])
@@ -148,7 +146,8 @@ class PetangStorage:
                 cv2.putText(frame, text, (x + 100, y + i * 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
 class SpeedMeasurementApp(QWidget):
-    def init(self):
+    def __init__(self):
+        super().__init__()
         self.speed_array = []
         self.time_array = []
         self.min_radius = 20
@@ -159,11 +158,15 @@ class SpeedMeasurementApp(QWidget):
 
         self.storage = PetangStorage()
 
+
     def setup_ui(self):
+
+        layout = QVBoxLayout()  # Move this line here
+
         self.speed_label = QLabel("Ball Speed Meter")
         self.image_label = QLabel()
         self.pause_button = QPushButton("Pause")
-        self.reset_button = QPushButton("Reset")
+        #self.reset_button = QPushButton("Reset")
         self.resetspeed_button = QPushButton("Reset Speed")
         self.quit_button = QPushButton("Quit")
 
@@ -172,18 +175,18 @@ class SpeedMeasurementApp(QWidget):
         self.resetspeed_button.setStyleSheet("background-color: #AA2A53")
         self.setStyleSheet("background-color: #218457")
 
-        self.pause_button.clicked.connect(self.pause_measurement)
-        self.reset_button.clicked.connect(self.reset_measurement)
-        self.resetspeed_button.clicked.connect(self.resetspeed_measurement)
-        self.quit_button.clicked.connect(self.close)
-
-        layout = QVBoxLayout()
+        # Add sliders and labels to the layout
         layout.addWidget(self.speed_label)
         layout.addWidget(self.image_label)
-        layout.addWidget(self.reset_button)
+        #layout.addWidget(self.reset_button)
         layout.addWidget(self.resetspeed_button)
         layout.addWidget(self.pause_button)
         layout.addWidget(self.quit_button)
+
+        self.pause_button.clicked.connect(self.pause_measurement)
+        #self.reset_button.clicked.connect(self.reset_measurement)
+        self.resetspeed_button.clicked.connect(self.resetspeed_measurement)
+        self.quit_button.clicked.connect(self.close)
 
         self.setLayout(layout)
         self.setWindowTitle("Speed Measurement")
@@ -199,7 +202,7 @@ class SpeedMeasurementApp(QWidget):
         plt.show()
 
     def setup_camera(self):
-        self.cap = cv2.VideoCapture(fname)
+        self.cap = cv2.VideoCapture(0)  # Initialize cap with the default camera (you can change the camera index if needed)
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(self.timer_ticks)
@@ -209,6 +212,7 @@ class SpeedMeasurementApp(QWidget):
         self.max_speed = 0
         self.real_time_speed = 0
         self.pause_measurement_flag = False
+
 
     def find_black_circles(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -286,6 +290,7 @@ class SpeedMeasurementApp(QWidget):
         self.max_speed = 0
         self.time_start = time.time()
 
+    """
     def reset_measurement(self):
         self.setup_camera()
         self.prev_position = None
@@ -298,7 +303,7 @@ class SpeedMeasurementApp(QWidget):
 
         self.time_array = []
         self.speed_array = []
-
+    """
 
     def resetspeed_measurement(self):
         self.speed = 0
@@ -324,5 +329,4 @@ class SpeedMeasurementApp(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = SpeedMeasurementApp()
-    window.init()
     sys.exit(app.exec_())
